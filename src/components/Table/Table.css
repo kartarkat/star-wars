@@ -1,0 +1,40 @@
+.table-component{
+    display: flex;
+    margin: 10px;
+    padding: 10px;
+    height: 80vh;
+    justify-content: center;
+}
+
+.table-container {
+    overflow: auto;
+  }
+  
+  table {
+    border-collapse: collapse;
+    border: 1px solid black;
+    width: 100%;
+  }
+  
+  th,
+  td {
+    border: 1px solid black;
+    height: 50px;
+    min-width: 100px;
+    max-width: 200px;
+    text-align: start;
+    padding: 0 10px;
+  }
+  
+  .cell-content {
+    height: 100%;
+    max-width: 200px;
+    overflow-y: auto;
+  }
+
+  .loading , .no-results {
+    font-size: 25px;
+    font-weight: 700;
+    margin-top: 10%;
+  }
+  
