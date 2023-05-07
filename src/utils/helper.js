@@ -1,3 +1,8 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRobot, faCircleUser, faQuestion  } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+
+
 export function formatHeaderString(str) {
     const words = str.split('_');
     const capitalizedWords = words.map((word) => {
@@ -21,6 +26,40 @@ export const formatDateTime = (str) => {
 
 export const formatTableData = (header, data) => {
     if(header === 'created' || header === 'edited') return formatDateTime(data)
+    if(Array.isArray(data)) return data.join(' ,')
+    if(header === 'icon'){
+        if(data === 'human') return <FontAwesomeIcon icon={faRobot} />
+        if(data === 'Droid') return <FontAwesomeIcon icon={faCircleUser} />
+        return <FontAwesomeIcon icon={faQuestion} />
+    }
     if(typeof data === 'object') return 'object'
     return data
   }
+
+  export function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        func.apply(null, args);
+      }, delay);
+    };
+  }
+
+  export const makeApiCall = async (url, method = 'GET', data = null, headers = {}) => {
+    try {
+      const response = await axios({
+        method,
+        url,
+        data,
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error(`API request failed: ${error.message}`);
+    }
+  };
+  

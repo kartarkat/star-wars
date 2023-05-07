@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMobileAndroid, faUserCircle, faQuestion, } from '@fortawesome/free-solid-svg-icons';
 import Table from './components/Table/Table';
 import Pagination from './components/Pagination/Pagination';
+import './App.css'
 
 const App = () => {
   const [people, setPeople] = useState([]);
@@ -45,28 +44,21 @@ const App = () => {
     setCurrentPage(page);
   };
 
-  const renderIcon = (person) => {
-    if (person.species.length === 0) {
-      if (person.gender === 'n/a') {
-        return <FontAwesomeIcon icon={faMobileAndroid} />;
-      }
-      return <FontAwesomeIcon icon={faUserCircle} />;
-    }
-    return <FontAwesomeIcon icon={faQuestion} />;
-  };
-
   return (
     <div className="container">
-      <h1>Star Wars Characters</h1>
+      <div className='title'>Star Wars Characters</div>
       <Table
         people={people}
         loading={loading}
-        renderIcon={renderIcon} />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+        setLoading={setLoading}
+        setPeople={setPeople} />
+        {people.length > 0 ?
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          /> : ''
+        }
     </div>
   );
 }

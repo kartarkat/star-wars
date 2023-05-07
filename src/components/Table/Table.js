@@ -1,88 +1,83 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faMagnifyingGlass, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 
 
 import './Table.css'
-import { formatHeaderString, formatTableData } from '../../utils/helper';
+import { debounce, formatHeaderString, formatTableData, makeApiCall } from '../../utils/helper';
+import Modal from '../Modal/Modal';
+import PersonCard from '../PersonCard/PersonCard';
 
-const Table = ({ loading, people = [] }) => {
+const Table = ({ loading, setLoading, people = [] }) => {
     const [tableData, setTableData] = useState([])
     const [sortDirections, setSortDirections] = useState({});
+    const [searchUser, setSearchUser] = useState([])
+    const [personsModal, setPersonsModal] = useState(false)
+    const [infoModal, setInfoModal] = useState(false)
+
 
     const checkDetails = async (urls, dataType) => {
         if (urls && urls.length > 0) {
-          const details = await Promise.all(
-            urls.map(async (url) => {
-              try {
-                const response = await fetch(url);
-                const data = await response.json();
-                return data;
-              } catch (error) {
-                console.log(error);
-                return null;
-              }
-            })
-          );
-      
-          return { [`${dataType}Details`]: details.filter((detail) => detail) };
-        } else {
-          return {};
-        }
-      };
-      
+            const details = await Promise.all(
+                urls.map(async (url) => {
+                    try {
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        return data;
+                    } catch (error) {
+                        console.log(error);
+                        return null;
+                    }
+                })
+            );
 
-      useEffect(() => {
-        if (people && people.length > 0) {
-          const checkSpecies = async (person) => {
-            const speciesDetails = await checkDetails(person.species, "species");
-            return { ...person, ...speciesDetails };
-          };
-      
-          const checkHomeworld = async (person) => {
-            const homeworldDetails = await checkDetails([person.homeworld], "homeworld");
-            return { ...person, ...homeworldDetails };
-          };
-      
-          const checkFilms = async (person) => {
-            const filmDetails = await checkDetails(person.films, "films");
-            return { ...person, ...filmDetails };
-          };
-      
-          const checkVehicles = async (person) => {
-            const vehicleDetails = await checkDetails(person.vehicles, "vehicles");
-            return { ...person, ...vehicleDetails };
-          };
-      
-          const checkStarships = async (person) => {
-            const starshipDetails = await checkDetails(person.starships, "starships");
-            return { ...person, ...starshipDetails };
-          };
-      
-          Promise.all(
-            people.map((person) =>
-              Promise.all([
-                checkSpecies(person),
-                checkHomeworld(person),
-                checkFilms(person),
-                checkVehicles(person),
-                checkStarships(person),
-              ]).then((detailsArray) => Object.assign({}, ...detailsArray))
-            )
-          )
-            .then((newTableData) => setTableData(newTableData))
-            .catch((error) => console.log(error));
+            return { [`${dataType}Details`]: details.filter((detail) => detail) };
+        } else {
+            return {};
         }
-      }, [people]);
-      
+    };
+
+
+    useEffect(() => {
+        if (people && people.length > 0) {
+            setLoading(true)
+            const checkSpecies = async (person) => {
+                const speciesDetails = await checkDetails(person.species, "species");
+                const name = person.name
+                const gender = person.gender;
+                let icon = null;
+
+                if (gender === 'male' || gender === 'female') {
+                    icon = 'human';
+                }
+
+                if (speciesDetails.speciesDetails && speciesDetails.speciesDetails.length > 0) {
+                    const name = speciesDetails.speciesDetails[0]?.name;
+                    icon = name;
+                }
+
+                return { name, icon, ...person, ...speciesDetails };
+            };
+            Promise.all(
+                people.map((person) =>
+                    Promise.all([
+                        checkSpecies(person),
+                    ]).then((detailsArray) => Object.assign({}, ...detailsArray))
+                )
+            )
+                .then((newTableData) => { setTableData(newTableData); setLoading(false) })
+                .catch((error) => { console.log(error); setLoading(false) });
+        }
+    }, [people, setLoading]);
+
 
     const handleSort = (header) => {
         const currentDirection = sortDirections[header];
         const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
         setSortDirections({ ...sortDirections, [header]: newDirection });
 
-        const sortedPeople = [...people].sort((a, b) => {
+        const sortedPeople = [...tableData].sort((a, b) => {
             const aVal = isNaN(a[header]) ? a[header] : Number(a[header]);
             const bVal = isNaN(b[header]) ? b[header] : Number(b[header]);
             if (!isNaN(aVal) && !isNaN(bVal)) {
@@ -103,7 +98,7 @@ const Table = ({ loading, people = [] }) => {
 
 
     const renderTable = () => {
-        const tableHeaders = Object.keys(tableData[0]) || []
+        const tableHeaders = tableData.length > 1 ? Object.keys(tableData[0]) : []
         return (
             <div className="table-container">
                 <table>
@@ -136,15 +131,56 @@ const Table = ({ loading, people = [] }) => {
         );
     };
 
+    const handleSearch = async (event) => {
+        const query = event.target.value
+        const res = await makeApiCall(`https://swapi.dev/api/people/?search=${query}`)
+        await setPersonsModal(true)
+        await setSearchUser(res.results)
+    }
+
+    const renderInfo = () => {
+        const res = new Map();
+        for (const d of tableData) {
+            const { icon } = d;
+            const count = res.has(icon) ? res.get(icon) + 1 : 1;
+            res.set(icon, count);
+        }
+        const result = Array.from(res, ([icon, count]) => ({ icon, count }));
+        return(
+            <>
+            {result.map(obj => <div>{obj.icon} : {obj.count}</div>)}
+            </>
+        )
+    }
+
+
     return (
         <div className='table-component'>
-            {loading ? (
-                <div className="loading">Loading data  <FontAwesomeIcon icon={faSpinner} spin /></div>
-            ) : tableData.length === 0 ? (
-                <div className="no-results">No results found from API</div>
-            ) : (
-                renderTable()
-            )}
+            {loading || tableData.length === 0 ?
+                <div className="loading">Loading data <FontAwesomeIcon icon={faSpinner} spin /></div>
+                :
+                <>
+                    <div className='search-container'>
+                        <FontAwesomeIcon className='info-icon' icon={faCircleInfo} onClick={() => setInfoModal(true)} />
+                        <input
+                            className='search-input'
+                            onBlur={(event) => event.target.value = ''}
+                            placeholder='search name'
+                            onChange={debounce(handleSearch, 500)}
+                        />
+                        <FontAwesomeIcon className='search-icon' icon={faMagnifyingGlass} />
+                    </div>
+                    {renderTable()}
+                </>
+            }
+            <Modal isOpen={personsModal} onClose={() => setPersonsModal(false)}>
+                <PersonCard persons={searchUser} />
+            </Modal>
+            <Modal isOpen={infoModal} onClose={() => setInfoModal(false)}>
+                <div>
+                    {renderInfo()}
+                </div>
+            </Modal>
         </div>
     );
 };
