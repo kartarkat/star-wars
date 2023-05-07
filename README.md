@@ -1,4 +1,4 @@
-# Online Drive
+# STAR WARS
 This app display the STAR WARS characters with their details. App is built using **React JS**
 
 Try this app [https://starwars-nord.netlify.app/](https://starwars-nord.netlify.app/)
