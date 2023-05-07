@@ -34,21 +34,22 @@ const PersonCard = ({ persons = [] }) => {
 
     return (
         <div className='person-container'>
-            {persons.length > 0 ? 
-            <button className='navigate-btn' onClick={handlePrevClick} disabled={currentIndex === 0}>
-                &lt;
-            </button> : ''
-            }
             <div className="card">
                 <div className="card-header">
                     <h2 className="card-title">{person.name}</h2>
                 </div>
                 <div className="card-body">{renderPersonData()}</div>
             </div>
-            {persons.length > 0 ? 
-            <button className='navigate-btn' onClick={handleNextClick} disabled={currentIndex === persons.length - 1}>
-                &gt;
-            </button> : ""}
+            {persons.length > 0 ?
+                <div className='navigate'>
+                    <button className='navigate-btn' onClick={handlePrevClick} disabled={currentIndex === 0}>
+                        &lt;
+                    </button>
+                    <button className='navigate-btn' onClick={handleNextClick} disabled={currentIndex === persons.length - 1}>
+                        &gt;
+                    </button>
+                </div> : ""}
+
         </div>
     );
 };

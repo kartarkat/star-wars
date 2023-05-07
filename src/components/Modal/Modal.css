@@ -49,3 +49,16 @@
     cursor: pointer;
   }
   
+  @media screen and (max-width: 600px) {
+    .modal-content {
+      max-width: 80%;
+      border-radius: 0;
+      max-height: 70vh;
+    }
+  
+    .modal-close {
+      top: 0;
+      right: 0;
+      font-size: 16px;
+    }
+  }

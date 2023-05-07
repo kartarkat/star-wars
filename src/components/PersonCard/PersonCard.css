@@ -1,51 +1,80 @@
-.person-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.person-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
 }
 
 .card {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 16px;
-    padding: 16px;
-  }
-  
-  .card-header {
-    background-color: #f0f0f0;
-    border-radius: 8px 8px 0 0;
-    padding: 8px;
-  }
-  
-  .card-title {
-    font-size: 24px;
-    margin: 0;
-  }
-  
-  .card-body {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 8px 0;
-    min-width: 300px;
-  }
-  
-  .card-body > div {
-    flex-basis: 50%;
-    padding: 8px;
-  }
-  
-  .card-body strong {
-    font-weight: bold;
-  }
-  
-  .card-body div:not(:last-child) {
-    border-bottom: 1px solid #ccc;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 16px;
+  padding: 16px;
+  max-width: 100%;
+  max-height: 70vh;
+  overflow: scroll;
+}
+
+.card-header {
+  background-color: #f0f0f0;
+  border-radius: 8px 8px 0 0;
+  padding: 8px;
+}
+
+.card-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.card-body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 8px 0;
+  min-width: 300px;
+}
+
+.card-body>div {
+  flex-basis: 50%;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.card-body strong {
+  font-weight: bold;
+}
+
+.card-body div:not(:last-child) {
+  border-bottom: 1px solid #ccc;
+}
+
+.navigate{
+  display: flex;
+  justify-content: space-around;
+}
+
+.navigate-btn {
+  font-size: 18px;
+  padding: 10px 5px;
+  margin: 8px;
+}
+
+@media (max-width: 768px) {
+  .person-container {
+    padding: 5px;
   }
 
-  .navigate-btn{
-    font-size: 18px;
-    padding: 10px 5px;
+  .card-body>div {
+    flex-basis: 100%;
   }
-  
+
+  .card {
+    margin: 5px;
+    padding: 5px;
+    max-width: 90%;
+    max-height: 50vh;
+    overflow: scroll;
+  }
+}
